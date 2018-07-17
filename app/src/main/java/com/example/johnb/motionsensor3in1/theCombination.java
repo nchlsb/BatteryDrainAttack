@@ -1,5 +1,6 @@
 package com.example.johnb.motionsensor3in1;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -10,6 +11,8 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,8 @@ public class theCombination extends AppCompatActivity implements SensorEventList
     Sensor mTemperature;
     SensorManager mTemperaturetMan;
     TextView TemperatureView;
+
+    Button toastButton;
 
 
     @Override
@@ -69,24 +74,24 @@ public class theCombination extends AppCompatActivity implements SensorEventList
         TemperatureView = (TextView) findViewById(R.id.TempuratureData);
 
         //from Github
-        startService(new Intent(this, TheService.class));
+
 
         TextView wakeLockStatus = (TextView) findViewById(R.id.WakeLockStatus);
 
         BatteryManager mBatteryManager = (BatteryManager) getApplicationContext().getSystemService(Context.BATTERY_SERVICE);
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, //used just Wakelock at first. Couldn't resolve symbol. idk why
-                "MyWakelockTag");
+        //PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, //used just Wakelock at first. Couldn't resolve symbol. idk why
+                //"MyWakelockTag");
 
-        wakeLock.acquire();
+        //wakeLock.acquire();
 
         try {
             int x = 1 / 0;
-            wakeLock.release();
+            //wakeLock.release();
         } catch (Exception E) {
         } finally {
-            wakeLockStatus.setText(wakeLock.isHeld() + "");
+            //wakeLockStatus.setText(wakeLock.isHeld() + "");
         }
 
         int n = 100;
@@ -115,7 +120,49 @@ public class theCombination extends AppCompatActivity implements SensorEventList
             }
 
         }
+
+        toastButton = (Button) findViewById(R.id.serviceButton);
+
+        if (isServiceRunning(TheService.class)){
+            toastButton.setText("Stop Service");
+        }
+        else
+        {
+            toastButton.setText("Start Service");
+        }
+
+
+        toastButton.setOnClickListener(new View.OnClickListener() { //we need to overside onClick() in the new View.OnClickListener()
+            @Override
+            public void onClick(View v) {
+                //Log.e("MAIN", "Pressed Button");
+
+                if (isServiceRunning(TheService.class)){
+                    toastButton.setText("Start Service");
+                    stopService(new Intent(theCombination.this, TheService.class));
+                }
+                else
+                {
+                    toastButton.setText("Stop Service");
+                    startService(new Intent(theCombination.this, TheService.class));
+                }
+
+
+            }
+        });
     }
+
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -128,9 +175,9 @@ public class theCombination extends AppCompatActivity implements SensorEventList
         } else if (sensorType == Sensor.TYPE_GYROSCOPE) {
             GyroscopeView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
         } else if (sensorType == Sensor.TYPE_LIGHT) {
-            LightView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            //LightView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
         } else if (sensorType == Sensor.TYPE_AMBIENT_TEMPERATURE) { //all temp no longer valid
-            TemperatureView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            //TemperatureView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
         } else {
             Toast.makeText(
                     getApplicationContext(),

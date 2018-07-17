@@ -120,5 +120,14 @@
         android:text="Magnetic"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <Button
+        android:id="@+id/serviceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/LightData"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:text="service" />
+
 
 </RelativeLayout>

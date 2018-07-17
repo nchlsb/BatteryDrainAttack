@@ -1,6 +1,9 @@
 package com.example.johnb.motionsensor3in1;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,19 +16,22 @@ import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.util.Log;
-import android.widget.Toast;
+
+import java.util.Random;
 
 
 public class TheService extends Service implements SensorEventListener {
 
     public static final String TAG = TheService.class.getName();
     public static final int SCREEN_OFF_RECEIVER_DELAY = 500;
-
     private SensorManager mSensorManager = null;
-    private WakeLock mWakeLock = null;
+    NotificationManager notificationManger;
+    //private WakeLock mWakeLock = null;
+    String temp = ""; //holds sensor output data
+
+    Random r;
 
     /*
      * Register this as a sensor event listener.
@@ -33,20 +39,9 @@ public class TheService extends Service implements SensorEventListener {
     private void registerListener() {
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_FASTEST);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_FASTEST);
-
-
-
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_FASTEST);
-        Sensor mMagnetic = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
-
-
-
-
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_FASTEST);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE), SensorManager.SENSOR_DELAY_FASTEST);
-
-
     }
 
     /*
@@ -59,7 +54,7 @@ public class TheService extends Service implements SensorEventListener {
     public BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "onReceive("+intent+")");
+            Log.i(TAG, "onReceive(" + intent + ")");
 
             if (!intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 return;
@@ -88,21 +83,20 @@ public class TheService extends Service implements SensorEventListener {
         int sensorType = event.sensor.getType();
 
         if (sensorType == Sensor.TYPE_MAGNETIC_FIELD) {
-            //mToast.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            temp = "TYPE_MAGNETIC_FIELD, x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2];
         } else if (sensorType == Sensor.TYPE_ACCELEROMETER) {
-            //AccelerometerView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            temp = "TYPE_ACCELEROMETER, x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2];
         } else if (sensorType == Sensor.TYPE_GYROSCOPE) {
-            //GyroscopeView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            temp = "TYPE_GYROSCOPE, x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2];
         } else if (sensorType == Sensor.TYPE_LIGHT) {
-            //LightView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
-        } else if (sensorType == Sensor.TYPE_AMBIENT_TEMPERATURE) { //all temp no longer valid
-            //TemperatureView.setText("x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2]);
+            //temp = "TYPE_LIGHT, x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2];
+        } else if (sensorType == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+            //temp = "TYPE_AMBIENT_TEMPERATURE, x: " + event.values[0] + "\n" + "y: " + event.values[1] + "\n" + "z: " + event.values[2];
         } else {
-            Toast.makeText(
-                    getApplicationContext(),
-                    "No Sensors Detected",
-                    Toast.LENGTH_LONG).show();
+            temp = "None";
         }
+
+        //Toast.makeText(getApplicationContext(), "Hello World!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -110,10 +104,47 @@ public class TheService extends Service implements SensorEventListener {
         super.onCreate();
 
 
+
+        Log.e("MAIN", "Pressed Button");
+
+        //Toast toast = Toast.makeText(getApplicationContext(), "Your toast is done.", Toast.LENGTH_LONG);
+        //toast.show();
+
+        @SuppressLint("WrongConstant") PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, TheService.class), Notification.FLAG_ONGOING_EVENT);
+        Notification.Builder builder = new Notification.Builder(getApplicationContext());
+        builder.setContentTitle("This is the title");
+        builder.setContentText("This is the text");
+        builder.setSubText("Some sub text");
+        builder.setNumber(101);
+        builder.setOngoing(true);
+
+        builder.setContentIntent(contentIntent);
+        builder.setTicker("Fancy Notification");
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        Notification notification = builder.build();
+        notificationManger =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManger.notify(01, notification);
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                while(true) {
+                    r = new Random(System.currentTimeMillis());
+                    double i = Math.exp(r.nextDouble());
+                }
+            }
+        };
+
+        thread.start();
+
+
+
+
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        mWakeLock = manager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        //mWakeLock = manager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
@@ -123,8 +154,10 @@ public class TheService extends Service implements SensorEventListener {
     public void onDestroy() {
         unregisterReceiver(mReceiver);
         unregisterListener();
-        mWakeLock.release();
+        //mWakeLock.release();
+        notificationManger.cancel(01);
         stopForeground(true);
+
     }
 
     @Override
@@ -138,7 +171,7 @@ public class TheService extends Service implements SensorEventListener {
 
         startForeground(Process.myPid(), new Notification());
         registerListener();
-        mWakeLock.acquire();
+        //mWakeLock.acquire();
 
         return START_STICKY;
     }
