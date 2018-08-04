@@ -19,6 +19,15 @@
         </activity>
 
         <service android:name=".TheService" />
+
+        <receiver android:name=".ServiceDestroyReceiver" >
+            <intent-filter>
+                <action android:name="immortal_service" >
+                </action>
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>

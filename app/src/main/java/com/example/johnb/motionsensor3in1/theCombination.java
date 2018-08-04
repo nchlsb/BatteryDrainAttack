@@ -18,7 +18,9 @@ import android.widget.Toast;
 
 public class theCombination extends AppCompatActivity implements SensorEventListener {
 
-
+    /*
+    Sensor declaration
+     */
     Sensor mMagnetic;
     SensorManager mMagnetMan;
     public TextView MagnetView;
@@ -47,6 +49,9 @@ public class theCombination extends AppCompatActivity implements SensorEventList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_the_combination);
 
+        /*
+        * Sets up sensor drain and output to screen.
+         */
 
         mMagnetMan = (SensorManager) getSystemService(SENSOR_SERVICE);
         mMagnetic = mMagnetMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -73,26 +78,27 @@ public class theCombination extends AppCompatActivity implements SensorEventList
         mTemperaturetMan.registerListener(this, mTemperature, SensorManager.SENSOR_DELAY_FASTEST); //continuous samppling rate
         TemperatureView = (TextView) findViewById(R.id.TempuratureData);
 
-        //from Github
-
 
         TextView wakeLockStatus = (TextView) findViewById(R.id.WakeLockStatus);
 
         BatteryManager mBatteryManager = (BatteryManager) getApplicationContext().getSystemService(Context.BATTERY_SERVICE);
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        //PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, //used just Wakelock at first. Couldn't resolve symbol. idk why
-                //"MyWakelockTag");
 
-        //wakeLock.acquire();
+        /*
+        * In theory, the try/catch below is not longer important and should be able to be removed.
+         */
 
         try {
             int x = 1 / 0;
-            //wakeLock.release();
         } catch (Exception E) {
         } finally {
-            //wakeLockStatus.setText(wakeLock.isHeld() + "");
+
         }
+
+        /*
+        * Another way to try draining power that didn't work as well as floating point math.
+         */
 
         int n = 100;
 
@@ -121,6 +127,10 @@ public class theCombination extends AppCompatActivity implements SensorEventList
 
         }
 
+        /*
+        * Starts the attack and tells you whether it's on or off.
+         */
+
         toastButton = (Button) findViewById(R.id.serviceButton);
 
         if (isServiceRunning(TheService.class)){
@@ -139,7 +149,6 @@ public class theCombination extends AppCompatActivity implements SensorEventList
 
                 if (isServiceRunning(TheService.class)){
                     toastButton.setText("Start Service");
-                    stopService(new Intent(theCombination.this, TheService.class));
                 }
                 else
                 {
@@ -163,6 +172,9 @@ public class theCombination extends AppCompatActivity implements SensorEventList
     }
 
 
+    /*
+    * Output sesnsors data to the screen.
+     */
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -191,10 +203,3 @@ public class theCombination extends AppCompatActivity implements SensorEventList
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }
-
-//look at persisent notication
-
-/* how to do a service
-button should shart/stop
-then do persisent notication w/ new service
- */
